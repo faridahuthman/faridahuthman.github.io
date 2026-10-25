@@ -207,8 +207,8 @@ const CONFIG={email:"uthmanfaridah2023@gmail.com",whatsapp:"2349137101573",linke
 /* Add or edit projects. e: emoji, n: name, d: description, t: tools, l: link */
 const PROJECTS=[
 {e:"🛵",n:"Food Delivery Dashboard",d:"Excel data analysis and dashboard exploring food delivery performance, route efficiency, delivery time, distance and on-time delivery.",t:["Excel","Dashboard development","Data visualization"],l:"https://github.com/faridahuthman/food-delivery-dashboard"},
-{e:"🏥",n:"Hospital Encounters Analysis",d:"Interactive Excel dashboard analyzing hospital encounters in 2025, with insights into admissions, length of stay, readmissions, occupancy, departmental performance and healthcare costs.",t:["Excel","PivotTables","Data visualization","Dashboard development"],l:"https://github.com/faridahuthman/hospital_encounters_analysis"}
-{e: "🧫",n: "Tuberculosis Treatment Failure Research",d: "Undergraduate research investigating factors associated with tuberculosis treatment failure among patients attending TB clinics in Kwara State, Nigeria.",t: ["Tuberculosis Research", "Healthcare Data", "SPSS", "Excel"],l: "https://github.com/faridahuthman/tb-treatment-failure-research"}
+{e:"🏥",n:"Hospital Encounters Analysis",d:"Interactive Excel dashboard analyzing hospital encounters in 2025, with insights into admissions, length of stay, readmissions, occupancy, departmental performance and healthcare costs.",t:["Excel","PivotTables","Data visualization","Dashboard development"],l:"https://github.com/faridahuthman/hospital_encounters_analysis"},
+{e:"🧫",n: "Tuberculosis Treatment Failure Research",d: "Undergraduate research investigating factors associated with tuberculosis treatment failure among patients attending TB clinics in Kwara State, Nigeria.",t: ["Tuberculosis Research", "Healthcare Data", "SPSS", "Excel"],l: "https://github.com/faridahuthman/tb-treatment-failure-research"}
 ];  
 
 /* Skills. Each bar takes a level (Strong, Developing, Learning, Building) or a number from 0 to 100. */
@@ -266,14 +266,20 @@ addEventListener('keydown',e=>{if(e.key==='Escape')menu(false)});
 /* GitHub auto-pull */
 (async function(){const u=CONFIG.github.trim(),st=$('#ghs'),ul=$('#rp');
 if(!u){st.textContent='Add your GitHub username to CONFIG and your newest repositories will appear here automatically.';$('#n3').textContent='N/A';return}
-try{const r=await fetch('https://api.github.com/users/'+encodeURIComponent(u)+'/repos?sort=pushed&per_page=100');if(!r.ok)throw 0;
+try{const r=await fetch('https://api.github.com/users/'+encodeURIComponent(u)+'/repos?sort=pushed&per_page=100');if(!r.ok)throw r.status;
 const all=(await r.json()).filter(x=>!x.fork);$('#n3').textContent=all.length;
 if(!all.length){st.textContent='No public repositories yet. New work will show up here.';return}
 st.textContent='Pulled live from github.com/'+u;
 all.slice(0,6).forEach(x=>{const li=el('li'),a=el('a');a.href=x.html_url;a.target='_blank';a.rel='noopener';
 a.appendChild(el('h3','',x.name));a.appendChild(el('p','',x.description||'No description added yet.'));
 a.appendChild(el('small','',(x.language?x.language+', ':'')+'updated '+new Date(x.pushed_at).toLocaleDateString(undefined,{month:'short',year:'numeric'})));li.appendChild(a);ul.appendChild(li)})
-}catch(e){$('#n3').textContent='N/A';st.innerHTML='';const a=el('a','','Open my GitHub profile');a.href='https://github.com/'+encodeURIComponent(u);a.target='_blank';a.rel='noopener';st.appendChild(document.createTextNode('Repositories could not be loaded right now. '));st.appendChild(a)}})();
+}catch(e){$('#n3').textContent='N/A';st.innerHTML='';
+const msg=e===404?'GitHub could not find the username "'+u+'". Check the github value in CONFIG. ':e===403?'GitHub is limiting requests from this connection right now. Try again in an hour. ':'Repositories could not be loaded right now. ';
+st.appendChild(document.createTextNode(msg));
+const a=el('a','','Open my GitHub profile');a.href='https://github.com/'+encodeURIComponent(u);a.target='_blank';a.rel='noopener';st.appendChild(a);
+PROJECTS.filter(p=>p.l).forEach(p=>{const li=el('li'),b=el('a');b.href=p.l;b.target='_blank';b.rel='noopener';
+b.appendChild(el('h3','',p.l.split('/').pop()));b.appendChild(el('p','',p.d));b.appendChild(el('small','','featured project'));li.appendChild(b);ul.appendChild(li)})}
+})();
 
 /* Contact */
 const cw=CONFIG.whatsapp.replace(/\D/g,'');
